@@ -29,18 +29,11 @@ export const fetchOrders = createAsyncThunk('order/fetchOrders', async () => {
   }
 });
 
-// interface OrderState {
-//   isRequesting: boolean;
-//   orderData: TOrder | null;
-//   ordersData: TOrder[];
-//   total: number;
-//   totalToday: number;
-//   error: string | null;
-// }
+
 interface OrderState {
   isRequesting: boolean;
-  ordersData: TOrder[]; // Это список всех заказов пользователя
-  orderData: TOrder | null; // Это текущий заказ
+  ordersData: TOrder[]; 
+  orderData: TOrder | null; 
   total: number;
   totalToday: number;
   error: string | null;
@@ -48,7 +41,7 @@ interface OrderState {
 
 const initialState: OrderState = {
   isRequesting: false,
-  ordersData: [], // Начальное значение - пустой массив
+  ordersData: [],
   orderData: null,
   total: 0,
   totalToday: 0,

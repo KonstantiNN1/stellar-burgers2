@@ -20,7 +20,7 @@ export const ProfileMenu: FC = () => {
           navigate('/login');
         }
       })
-      .catch((error: any) => {
+      .catch((error: string) => {
         console.error('Ошибка при выходе:', error);
       });
   };
