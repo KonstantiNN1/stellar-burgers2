@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { TOrder, TOrdersData } from '../utils/types';
-import { orderBurgerApi, getFeedsApi } from '../utils/burger-api';
+import { orderBurgerApi, getFeedsApi, getOrdersApi } from '../utils/burger-api';
 
 export const placeOrder = createAsyncThunk(
   'order/placeOrder',
@@ -29,10 +29,18 @@ export const fetchOrders = createAsyncThunk('order/fetchOrders', async () => {
   }
 });
 
+// interface OrderState {
+//   isRequesting: boolean;
+//   orderData: TOrder | null;
+//   ordersData: TOrder[];
+//   total: number;
+//   totalToday: number;
+//   error: string | null;
+// }
 interface OrderState {
   isRequesting: boolean;
-  orderData: TOrder | null;
-  ordersData: TOrder[];
+  ordersData: TOrder[]; // Это список всех заказов пользователя
+  orderData: TOrder | null; // Это текущий заказ
   total: number;
   totalToday: number;
   error: string | null;
@@ -40,8 +48,8 @@ interface OrderState {
 
 const initialState: OrderState = {
   isRequesting: false,
+  ordersData: [], // Начальное значение - пустой массив
   orderData: null,
-  ordersData: [],
   total: 0,
   totalToday: 0,
   error: null
@@ -86,7 +94,6 @@ export const createOrder =
       const orderData = await orderBurgerApi(ingredients);
       dispatch(setOrderData(orderData.order));
 
-      // Добавляем новый заказ в начало ленты заказов
       const currentOrders = getState().order.ordersData;
       const newOrdersData = [orderData.order, ...currentOrders];
       dispatch(
@@ -120,21 +127,17 @@ export const loadOrders = () => async (dispatch: any) => {
   }
 };
 
+export const fetchUserOrders = createAsyncThunk<
+  TOrder[],
+  void,
+  { rejectValue: string }
+>('user/fetchUserOrders', async (_, { rejectWithValue }) => {
+  try {
+    const orders = await getOrdersApi();
+    return orders;
+  } catch (error: any) {
+    return rejectWithValue('Ошибка при загрузке заказов');
+  }
+});
+
 export default orderSlice.reducer;
-
-// export const createOrder = (ingredients: string[]) => async (dispatch: any) => {
-//   try {
-//     console.log('Создание заказа инициировано с ингредиентами:', ingredients);
-//     dispatch(setRequesting(true));
-
-//     const orderData = await orderBurgerApi(ingredients);
-//     dispatch(setOrderData(orderData.order));
-
-//     console.log('Заказ успешно создан:', orderData.order);
-//   } catch (error) {
-//     console.error('Ошибка при создании заказа:', error);
-//     dispatch(setError('Failed to create order'));
-//   } finally {
-//     dispatch(setRequesting(false));
-//   }
-// };

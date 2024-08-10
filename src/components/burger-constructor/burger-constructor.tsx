@@ -1,6 +1,6 @@
-// import { FC, useMemo } from 'react';
+// import { FC, useMemo, useEffect } from 'react';
 // import { useSelector, useDispatch } from '../../services/store';
-// import { createOrder } from '../../reducers/order';
+// import { createOrder, clearOrder } from '../../reducers/order';
 // import { TConstructorIngredient } from '@utils-types';
 // import { BurgerConstructorUI } from '../ui/burger-constructor';
 // import { useNavigate } from 'react-router-dom';
@@ -25,15 +25,28 @@
 //       ...constructorItems.ingredients.map(
 //         (item: TConstructorIngredient) => item._id
 //       ),
-//       constructorItems.bun._id,
+//       constructorItems.bun._id
 //     ];
 
 //     dispatch(createOrder(ingredientIds));
 //   };
 
 //   const closeOrderModal = () => {
-//     // Логика закрытия модального окна
+//     dispatch(clearOrder());
 //   };
+
+//   useEffect(() => {
+//     const handleEscape = (e: KeyboardEvent) => {
+//       if (e.key === 'Escape' && orderModalData) {
+//         closeOrderModal();
+//       }
+//     };
+
+//     document.addEventListener('keydown', handleEscape);
+//     return () => {
+//       document.removeEventListener('keydown', handleEscape);
+//     };
+//   }, [orderModalData]);
 
 //   const price = useMemo(
 //     () =>
@@ -60,6 +73,7 @@
 import { FC, useMemo, useEffect } from 'react';
 import { useSelector, useDispatch } from '../../services/store';
 import { createOrder, clearOrder } from '../../reducers/order';
+import { clearIngredients } from '../../reducers/constructorItems'; // Импортируем экшен для очистки ингредиентов
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '../ui/burger-constructor';
 import { useNavigate } from 'react-router-dom';
@@ -87,7 +101,14 @@ export const BurgerConstructor: FC = () => {
       constructorItems.bun._id
     ];
 
-    dispatch(createOrder(ingredientIds));
+    dispatch(createOrder(ingredientIds))
+      .then(() => {
+        // Очищаем ингредиенты после успешного заказа
+        dispatch(clearIngredients());
+      })
+      .catch((error) => {
+        console.error('Ошибка при оформлении заказа:', error);
+      });
   };
 
   const closeOrderModal = () => {
