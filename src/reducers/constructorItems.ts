@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ConstructorItemsState {
   bun: any | null;
@@ -18,12 +19,15 @@ const constructorItemsSlice = createSlice({
       state.bun = action.payload;
     },
     addIngredient(state, action: PayloadAction<any>) {
-      state.ingredients.push(action.payload);
+      state.ingredients.push({ ...action.payload, id: uuidv4() }); // Присваиваем уникальный id
     },
     removeIngredient(state, action: PayloadAction<any>) {
       state.ingredients = state.ingredients.filter(
         (ingredient) => ingredient.id !== action.payload.id
       );
+    },
+    clearBun(state) {
+      state.bun = null;
     }
   }
 });
