@@ -1,71 +1,32 @@
-// // // import { FC } from 'react';
+// import { FC } from 'react';
 
-// // // import { TOrder } from '@utils-types';
-// // // import { FeedInfoUI } from '../ui/feed-info';
+// import { TOrder } from '@utils-types';
+// import { FeedInfoUI } from '../ui/feed-info';
 
-// // // const getOrders = (orders: TOrder[], status: string): number[] =>
-// // //   orders
-// // //     .filter((item) => item.status === status)
-// // //     .map((item) => item.number)
-// // //     .slice(0, 20);
+// const getOrders = (orders: TOrder[], status: string): number[] =>
+//   orders
+//     .filter((item) => item.status === status)
+//     .map((item) => item.number)
+//     .slice(0, 20);
 
-// // // export const FeedInfo: FC = () => {
-// // //   /** TODO: взять переменные из стора */
-// // //   const orders: TOrder[] = [];
-// // //   const feed = {};
+// export const FeedInfo: FC = () => {
+//   /** TODO: взять переменные из стора */
+//   const orders: TOrder[] = [];
+//   const feed = {};
 
-// // //   const readyOrders = getOrders(orders, 'done');
+//   const readyOrders = getOrders(orders, 'done');
 
-// // //   const pendingOrders = getOrders(orders, 'pending');
+//   const pendingOrders = getOrders(orders, 'pending');
 
-// // //   return (
-// // //     <FeedInfoUI
-// // //       readyOrders={readyOrders}
-// // //       pendingOrders={pendingOrders}
-// // //       feed={feed}
-// // //     />
-// // //   );
-// // // };
+//   return (
+//     <FeedInfoUI
+//       readyOrders={readyOrders}
+//       pendingOrders={pendingOrders}
+//       feed={feed}
+//     />
+//   );
+// };
 
-// // import React, { FC, useEffect } from 'react';
-// // import { useDispatch, useSelector } from 'react-redux';
-// // import { Preloader } from '@ui';
-// // import { FeedInfoUI } from '@ui';
-// // import { RootState, AppDispatch } from '../../services/store';
-// // import { loadOrders } from '../../reducers/order';
-
-// // export const FeedInfo: FC = () => {
-// //   const dispatch = useDispatch<AppDispatch>();
-
-// //   const orders = useSelector((state: RootState) => state.order.ordersData);
-// //   const isLoading = useSelector((state: RootState) => state.order.isRequesting);
-// //   const error = useSelector((state: RootState) => state.order.error);
-// //   const total = useSelector((state: RootState) => state.order.total);
-// //   const totalToday = useSelector((state: RootState) => state.order.totalToday);
-
-// //   useEffect(() => {
-// //     dispatch(loadOrders());
-// //   }, [dispatch]);
-
-// //   if (isLoading) {
-// //     return <Preloader />;
-// //   }
-
-// //   if (error) {
-// //     return <div>Ошибка: {error}</div>;
-// //   }
-
-// //   const readyOrders = orders.filter(order => order.status === 'done').map(order => order.number);
-// //   const pendingOrders = orders.filter(order => order.status === 'pending').map(order => order.number);
-
-// //   return (
-// //     <FeedInfoUI
-// //       feed={{ total, totalToday }}
-// //       readyOrders={readyOrders}
-// //       pendingOrders={pendingOrders}
-// //     />
-// //   );
-// // };
 import React, { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Preloader } from '@ui';
@@ -73,51 +34,7 @@ import { FeedInfoUI } from '@ui';
 import { RootState, AppDispatch } from '../../services/store';
 import { loadOrders } from '../../reducers/order';
 
-// export const FeedInfo: FC = () => {
-//   const dispatch = useDispatch<AppDispatch>();
 
-//   const orders = useSelector((state: RootState) => state.order.ordersData);
-//   const isLoading = useSelector((state: RootState) => state.order.isRequesting);
-//   const error = useSelector((state: RootState) => state.order.error);
-//   const total = useSelector((state: RootState) => state.order.total);
-//   const totalToday = useSelector((state: RootState) => state.order.totalToday);
-
-//   useEffect(() => {
-//     console.log('Компонент Feed смонтирован');
-//     dispatch(loadOrders());
-//   }, [dispatch]);
-
-//   if (isLoading) {
-//     return <Preloader />;
-//   }
-
-//   if (error) {
-//     return <div>Ошибка: {error}</div>;
-//   }
-
-//   // Логирование всех статусов заказов для диагностики
-//   console.log('Все статусы заказов:', orders.map(order => order.status));
-
-//   const readyOrders = orders.filter(order => order.status === 'done').map(order => order.number);
-//   const pendingOrders = orders.filter(order => order.status === 'pending').map(order => order.number);
-
-//   console.log('Готовые заказы:', readyOrders);
-//   console.log('Заказы в работе:', pendingOrders);
-
-//   return (
-//     <FeedInfoUI
-//       feed={{
-//         orders,
-//         total,
-//         totalToday,
-//         isLoading: false,
-//         error: null,
-//       }}
-//       readyOrders={readyOrders}
-//       pendingOrders={pendingOrders}
-//     />
-//   );
-// };
 export const FeedInfo: FC = () => {
   const orders = useSelector((state: RootState) => state.order.ordersData);
   const isLoading = useSelector((state: RootState) => state.order.isRequesting);
@@ -159,15 +76,14 @@ export const FeedInfo: FC = () => {
   console.log('Готовые заказы:', readyOrders);
   console.log('Заказы в работе:', pendingOrders);
 
-  // Рендерим UI компонента с проверенными данными
   return (
     <FeedInfoUI
       feed={{
         orders,
         total,
         totalToday,
-        isLoading: false, // Данные загружены, поэтому выставляем isLoading в false
-        error: null // Ошибок нет, поэтому выставляем error в null
+        isLoading: false, 
+        error: null
       }}
       readyOrders={readyOrders}
       pendingOrders={pendingOrders}

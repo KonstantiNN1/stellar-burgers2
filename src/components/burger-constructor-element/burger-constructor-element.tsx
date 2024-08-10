@@ -1,28 +1,3 @@
-// import { FC, memo } from 'react';
-// import { BurgerConstructorElementUI } from '@ui';
-// import { BurgerConstructorElementProps } from './type';
-
-// export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
-//   ({ ingredient, index, totalItems }) => {
-//     const handleMoveDown = () => {};
-
-//     const handleMoveUp = () => {};
-
-//     const handleClose = () => {};
-
-//     return (
-//       <BurgerConstructorElementUI
-//         ingredient={ingredient}
-//         index={index}
-//         totalItems={totalItems}
-//         handleMoveUp={handleMoveUp}
-//         handleMoveDown={handleMoveDown}
-//         handleClose={handleClose}
-//       />
-//     );
-//   }
-// );
-
 import { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { ConstructorElement } from '@zlden/react-developer-burger-ui-components';
@@ -36,13 +11,11 @@ interface BurgerConstructorElementProps {
   totalItems: number;
 }
 
-export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = ({
-  ingredient
-}) => {
+export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = ({ ingredient }) => {
   const dispatch = useDispatch();
 
   const handleDelete = () => {
-    dispatch(removeIngredient(ingredient)); // Удаляем конкретный ингредиент
+    dispatch(removeIngredient(ingredient));
   };
 
   return (
@@ -51,7 +24,7 @@ export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = ({
         text={ingredient.name}
         price={ingredient.price}
         thumbnail={ingredient.image}
-        handleClose={handleDelete} // Привязываем удаление ингредиента
+        handleClose={handleDelete}
       />
     </li>
   );
