@@ -34,7 +34,6 @@ import { FeedInfoUI } from '@ui';
 import { RootState, AppDispatch } from '../../services/store';
 import { loadOrders } from '../../reducers/order';
 
-
 export const FeedInfo: FC = () => {
   const orders = useSelector((state: RootState) => state.order.ordersData);
   const isLoading = useSelector((state: RootState) => state.order.isRequesting);
@@ -82,7 +81,7 @@ export const FeedInfo: FC = () => {
         orders,
         total,
         totalToday,
-        isLoading: false, 
+        isLoading: false,
         error: null
       }}
       readyOrders={readyOrders}

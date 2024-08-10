@@ -1,32 +1,28 @@
+export type FeedInfoUIProps = {
+  feed: any;
+  readyOrders: number[];
+  pendingOrders: number[];
+};
+
 // export type FeedInfoUIProps = {
-//   // feed: any;
 //   feed: {
+//     orders: {
+//       _id: string;
+//       status: string;
+//       name: string;
+//       createdAt: string;
+//       updatedAt: string;
+//       number: number;
+//       ingredients: string[];
+//     }[];
 //     total: number;
 //     totalToday: number;
+//     isLoading: boolean;
+//     error: string | null;
 //   };
 //   readyOrders: number[];
 //   pendingOrders: number[];
 // };
-
-export type FeedInfoUIProps = {
-  feed: {
-    orders: {
-      _id: string;
-      status: string;
-      name: string;
-      createdAt: string;
-      updatedAt: string;
-      number: number;
-      ingredients: string[];
-    }[];
-    total: number;
-    totalToday: number;
-    isLoading: boolean;
-    error: string | null;
-  };
-  readyOrders: number[];
-  pendingOrders: number[];
-};
 
 export type HalfColumnProps = {
   orders: number[];

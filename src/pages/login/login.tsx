@@ -1,7 +1,7 @@
 import { FC, SyntheticEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../../reducers/user'; 
+import { loginUser } from '../../reducers/user';
 import { RootState, AppDispatch } from '../../services/store';
 import { LoginUI } from '@ui-pages';
 
@@ -21,7 +21,7 @@ export const Login: FC = () => {
         navigate('/profile');
       })
       .catch((err) => {
-        console.error('Ошибка авторизации:', err); 
+        console.error('Ошибка авторизации:', err);
       });
   };
 

@@ -67,7 +67,7 @@ const orderSlice = createSlice({
     },
     setError(state, action) {
       state.error = action.payload;
-    },
+    }
   }
 });
 
@@ -79,23 +79,31 @@ export const {
   setError
 } = orderSlice.actions;
 
-export const createOrder = (ingredients: string[]) => async (dispatch: any) => {
-  try {
-    console.log('Создание заказа инициировано с ингредиентами:', ingredients);
-    dispatch(setRequesting(true));
-    
-    const orderData = await orderBurgerApi(ingredients);
-    dispatch(setOrderData(orderData.order));
-    
-    console.log('Заказ успешно создан:', orderData.order);
-  } catch (error) {
-    console.error('Ошибка при создании заказа:', error);
-    dispatch(setError('Failed to create order'));
-  } finally {
-    dispatch(setRequesting(false));
-  }
-};
+export const createOrder =
+  (ingredients: string[]) => async (dispatch: any, getState: any) => {
+    try {
+      dispatch(setRequesting(true));
+      const orderData = await orderBurgerApi(ingredients);
+      dispatch(setOrderData(orderData.order));
 
+      // Добавляем новый заказ в начало ленты заказов
+      const currentOrders = getState().order.ordersData;
+      const newOrdersData = [orderData.order, ...currentOrders];
+      dispatch(
+        setOrdersData({
+          orders: newOrdersData,
+          total: newOrdersData.length,
+          totalToday: getState().order.totalToday + 1
+        })
+      );
+
+      dispatch(setRequesting(false));
+    } catch (error) {
+      dispatch(setError('Failed to create order'));
+      dispatch(setRequesting(false));
+      console.error('Ошибка при создании заказа:', error);
+    }
+  };
 
 export const loadOrders = () => async (dispatch: any) => {
   try {
@@ -113,3 +121,20 @@ export const loadOrders = () => async (dispatch: any) => {
 };
 
 export default orderSlice.reducer;
+
+// export const createOrder = (ingredients: string[]) => async (dispatch: any) => {
+//   try {
+//     console.log('Создание заказа инициировано с ингредиентами:', ingredients);
+//     dispatch(setRequesting(true));
+
+//     const orderData = await orderBurgerApi(ingredients);
+//     dispatch(setOrderData(orderData.order));
+
+//     console.log('Заказ успешно создан:', orderData.order);
+//   } catch (error) {
+//     console.error('Ошибка при создании заказа:', error);
+//     dispatch(setError('Failed to create order'));
+//   } finally {
+//     dispatch(setRequesting(false));
+//   }
+// };

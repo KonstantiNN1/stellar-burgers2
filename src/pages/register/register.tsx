@@ -1,15 +1,15 @@
 import { FC, SyntheticEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../../reducers/user'; 
-import { RootState, AppDispatch } from '../../services/store'; 
+import { registerUser } from '../../reducers/user';
+import { RootState, AppDispatch } from '../../services/store';
 import { RegisterUI } from '@ui-pages';
 
 export const Register: FC = () => {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const dispatch: AppDispatch = useDispatch(); 
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
   const error = useSelector((state: RootState) => state.user.error);
@@ -17,7 +17,7 @@ export const Register: FC = () => {
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     dispatch(registerUser({ userName, email, password }))
-      .unwrap() 
+      .unwrap()
       .then(() => {
         navigate('/profile');
       })

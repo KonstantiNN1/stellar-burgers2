@@ -3,7 +3,7 @@ import ingredientsReducer from './ingredients';
 import constructorItemsReducer from './constructorItems';
 import orderReducer from './order';
 import currentIngredientReducer from './currentIngredient';
-import userReducer from './user'; 
+import userReducer from './user';
 
 const rootReducer = combineReducers({
   ingredients: ingredientsReducer,
