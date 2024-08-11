@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch } from '../../services/store';
 import { TConstructorIngredient } from '@utils-types';
 import {
   removeIngredient,

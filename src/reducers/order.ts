@@ -1,39 +1,73 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { TOrder, TOrdersData } from '../utils/types';
 import { orderBurgerApi, getFeedsApi, getOrdersApi } from '../utils/burger-api';
+import { AppDispatch, RootState } from '../services/store';
+import { CustomError } from '../utils/types';
 
-export const placeOrder = createAsyncThunk(
-  'order/placeOrder',
-  async (ingredients: string[], { rejectWithValue }) => {
-    try {
-      console.log('Пытаемся создать заказ с ингредиентами:', ingredients);
-      const orderData = await orderBurgerApi(ingredients);
-      console.log('Успешно создан заказ:', orderData.order);
-      return orderData.order;
-    } catch (error) {
-      console.error('Ошибка при создании заказа:', error);
-      return rejectWithValue(error);
-    }
-  }
-);
-
-export const fetchOrders = createAsyncThunk('order/fetchOrders', async () => {
+export const placeOrder = createAsyncThunk<
+  TOrder,
+  string[],
+  { rejectValue: CustomError }
+>('order/placeOrder', async (ingredients: string[], { rejectWithValue }) => {
   try {
-    console.log('Запрос на получение ленты заказов отправлен');
-    const data = await getFeedsApi();
-    console.log('Успешно получены данные ленты заказов:', data);
-    return data;
+    const orderData = await orderBurgerApi(ingredients);
+    return orderData.order;
   } catch (error) {
-    console.error('Ошибка при получении ленты заказов:', error);
-    throw new Error('Failed to fetch orders');
+    if (error instanceof Error) {
+      const customError: CustomError = {
+        message: 'Ошибка при создании заказа',
+        code: error.name
+      };
+      return rejectWithValue(customError);
+    }
+    return rejectWithValue({ message: 'Unknown error' });
   }
 });
 
+export const fetchOrders = createAsyncThunk<
+  TOrdersData,
+  void,
+  { rejectValue: CustomError }
+>('order/fetchOrders', async (_, { rejectWithValue }) => {
+  try {
+    const data = await getFeedsApi();
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      const customError: CustomError = {
+        message: 'Failed to fetch orders',
+        code: error.name
+      };
+      return rejectWithValue(customError);
+    }
+    return rejectWithValue({ message: 'Unknown error' });
+  }
+});
+
+export const fetchUserOrders = createAsyncThunk<
+  TOrder[],
+  void,
+  { rejectValue: CustomError }
+>('user/fetchUserOrders', async (_, { rejectWithValue }) => {
+  try {
+    const orders = await getOrdersApi();
+    return orders;
+  } catch (error) {
+    if (error instanceof Error) {
+      const customError: CustomError = {
+        message: 'Ошибка при загрузке заказов',
+        code: error.name
+      };
+      return rejectWithValue(customError);
+    }
+    return rejectWithValue({ message: 'Unknown error' });
+  }
+});
 
 interface OrderState {
   isRequesting: boolean;
-  ordersData: TOrder[]; 
-  orderData: TOrder | null; 
+  ordersData: TOrder[];
+  orderData: TOrder | null;
   total: number;
   totalToday: number;
   error: string | null;
@@ -55,18 +89,18 @@ const orderSlice = createSlice({
     clearOrder(state) {
       state.orderData = null;
     },
-    setRequesting(state, action) {
+    setRequesting(state, action: PayloadAction<boolean>) {
       state.isRequesting = action.payload;
     },
-    setOrderData(state, action) {
+    setOrderData(state, action: PayloadAction<TOrder>) {
       state.orderData = action.payload;
     },
-    setOrdersData(state, action) {
+    setOrdersData(state, action: PayloadAction<TOrdersData>) {
       state.ordersData = action.payload.orders;
       state.total = action.payload.total;
       state.totalToday = action.payload.totalToday;
     },
-    setError(state, action) {
+    setError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
     }
   }
@@ -81,7 +115,8 @@ export const {
 } = orderSlice.actions;
 
 export const createOrder =
-  (ingredients: string[]) => async (dispatch: any, getState: any) => {
+  (ingredients: string[]) =>
+  async (dispatch: AppDispatch, getState: () => RootState) => {
     try {
       dispatch(setRequesting(true));
       const orderData = await orderBurgerApi(ingredients);
@@ -105,32 +140,17 @@ export const createOrder =
     }
   };
 
-export const loadOrders = () => async (dispatch: any) => {
+export const loadOrders = () => async (dispatch: AppDispatch) => {
   try {
-    console.log('Инициация загрузки ленты заказов');
     dispatch(setRequesting(true));
     const ordersData = await getFeedsApi();
     dispatch(setOrdersData(ordersData));
     dispatch(setRequesting(false));
-    console.log('Лента заказов загружена и состояние обновлено');
   } catch (error) {
     dispatch(setError('Failed to fetch orders'));
     dispatch(setRequesting(false));
     console.error('Ошибка при загрузке ленты заказов:', error);
   }
 };
-
-export const fetchUserOrders = createAsyncThunk<
-  TOrder[],
-  void,
-  { rejectValue: string }
->('user/fetchUserOrders', async (_, { rejectWithValue }) => {
-  try {
-    const orders = await getOrdersApi();
-    return orders;
-  } catch (error: any) {
-    return rejectWithValue('Ошибка при загрузке заказов');
-  }
-});
 
 export default orderSlice.reducer;

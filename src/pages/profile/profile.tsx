@@ -1,12 +1,16 @@
 import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../../services/store';
+import {
+  useDispatch,
+  useSelector,
+  RootState,
+  AppDispatch
+} from '../../services/store';
 import { updateUserApi } from '../../utils/burger-api';
 import { setUser } from '../../reducers/user';
 
 export const Profile: FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
 
   const [formValue, setFormValue] = useState({

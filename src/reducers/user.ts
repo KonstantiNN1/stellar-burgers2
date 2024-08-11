@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { loginUserApi, registerUserApi, logoutApi } from '../utils/burger-api';
 import { setCookie } from '../utils/cookie';
 import { fetchOrders } from './order';
+import { CustomError, TUser } from '../utils/types';
+import { AppDispatch, RootState } from '../services/store';
 
 interface UserState {
   name: string | null;
@@ -18,9 +20,9 @@ const initialState: UserState = {
 };
 
 export const loginUser = createAsyncThunk<
-  { name: string; email: string },
+  TUser,
   { email: string; password: string },
-  { rejectValue: string }
+  { rejectValue: CustomError; dispatch: AppDispatch; state: RootState }
 >('user/login', async ({ email, password }, { rejectWithValue, dispatch }) => {
   try {
     const response = await loginUserApi({ email, password });
@@ -28,17 +30,21 @@ export const loginUser = createAsyncThunk<
     dispatch(fetchOrders());
 
     return response.user;
-  } catch (error: any) {
-    return rejectWithValue(
-      error.response?.data?.message || 'Ошибка авторизации'
-    );
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return rejectWithValue({
+        message: error.message,
+        code: error.name
+      });
+    }
+    return rejectWithValue({ message: 'Unknown error occurred' });
   }
 });
 
 export const registerUser = createAsyncThunk<
-  { name: string; email: string },
+  TUser,
   { userName: string; email: string; password: string },
-  { rejectValue: string }
+  { rejectValue: CustomError }
 >(
   'user/register',
   async ({ userName, email, password }, { rejectWithValue }) => {
@@ -51,33 +57,44 @@ export const registerUser = createAsyncThunk<
       setCookie('accessToken', response.accessToken);
 
       return response.user;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || 'Ошибка регистрации'
-      );
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return rejectWithValue({
+          message: error.message,
+          code: error.name
+        });
+      }
+      return rejectWithValue({ message: 'Unknown error occurred' });
     }
   }
 );
 
-export const logoutUser = createAsyncThunk<void, void, { rejectValue: string }>(
-  'user/logout',
-  async (_, { rejectWithValue, dispatch }) => {
-    try {
-      await logoutApi();
-      setCookie('accessToken', '', { expires: -1 });
+export const logoutUser = createAsyncThunk<
+  void,
+  void,
+  { rejectValue: CustomError; dispatch: AppDispatch }
+>('user/logout', async (_, { rejectWithValue, dispatch }) => {
+  try {
+    await logoutApi();
+    setCookie('accessToken', '', { expires: -1 });
 
-      dispatch(fetchOrders());
-    } catch (error: any) {
-      return rejectWithValue('Ошибка при выходе из системы');
+    dispatch(fetchOrders());
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return rejectWithValue({
+        message: error.message,
+        code: error.name
+      });
     }
+    return rejectWithValue({ message: 'Unknown error occurred' });
   }
-);
+});
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    setUser(state, action: PayloadAction<{ name: string; email: string }>) {
+    setUser(state, action: PayloadAction<TUser>) {
       state.name = action.payload.name;
       state.email = action.payload.email;
       state.isLoggedIn = true;
@@ -99,7 +116,7 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload?.message || null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.name = action.payload.name;
@@ -108,7 +125,7 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload?.message || null;
       })
       .addCase(logoutUser.fulfilled, (state) => {
         state.name = null;
@@ -117,7 +134,7 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload?.message || null;
       });
   }
 });

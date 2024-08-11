@@ -41,7 +41,6 @@ const App: FC = () => {
   };
 
   useEffect(() => {
-    console.log('Current location:', location.pathname);
     if (location.state && (location.state as any).background) {
       setModalVisible(true);
     } else {
@@ -54,8 +53,16 @@ const App: FC = () => {
   }
 
   // ProtectedRoute как часть App компонента
-  const ProtectedRoute = ({ element, ...rest }: any) =>
-    isLoggedIn ? element : <Navigate to='/login' replace />;
+  const ProtectedRoute = ({ element, ...rest }: any) => {
+    const location = useLocation();
+
+    if (!isLoggedIn) {
+      // Сохранение текущего местоположения
+      return <Navigate to='/login' state={{ from: location }} replace />;
+    }
+
+    return element;
+  };
 
   return (
     <div className={styles.app}>

@@ -4,9 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BurgerIngredientUI } from '@ui';
 import { TBurgerIngredientProps } from './type';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch } from '../../services/store';
 import { setCurrentIngredient } from '../../reducers/currentIngredient';
-import { addIngredient } from '../../reducers/constructorItems';
+import { addIngredientWithId } from '../../reducers/constructorItems';
 import { addBun } from '../../reducers/constructorItems';
 
 export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
@@ -30,7 +30,7 @@ export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
       if (ingredient.type === 'bun') {
         dispatch(addBun(ingredient));
       } else {
-        dispatch(addIngredient(ingredient));
+        dispatch(addIngredientWithId(ingredient));
       }
     };
 

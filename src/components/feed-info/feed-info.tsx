@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from '../../services/store';
 import { Preloader } from '@ui';
 import { FeedInfoUI } from '@ui';
 import { RootState, AppDispatch } from '../../services/store';
