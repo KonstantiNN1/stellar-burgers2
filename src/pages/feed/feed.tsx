@@ -1,13 +1,14 @@
+import React, { FC, useEffect } from 'react';
+import { useDispatch, useSelector } from '../../services/store';
 import { Preloader } from '@ui';
 import { FeedInfoUI } from '../../components/ui/feed-info';
 import { OrdersList } from '../../components/orders-list';
-import { FC, useEffect } from 'react';
-import { useDispatch, useSelector } from '../../services/store';
 import { RootState, AppDispatch } from '../../services/store';
 import { loadOrders } from '../../reducers/order';
+import styles from '../../components/ui/feed-info/feed-info.module.css';
 
 export const Feed: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   const orders = useSelector((state: RootState) => state.order.ordersData);
   const isLoading = useSelector((state: RootState) => state.order.isRequesting);
@@ -15,16 +16,7 @@ export const Feed: FC = () => {
   const total = useSelector((state: RootState) => state.order.total);
   const totalToday = useSelector((state: RootState) => state.order.totalToday);
 
-  console.log('Orders:', orders);
-  console.log('IsLoading:', isLoading);
-  console.log('Error:', error);
-  console.log('Total Orders:', total);
-  console.log('Total Orders Today:', totalToday);
-
   useEffect(() => {
-    console.log(
-      'Компонент Feed смонтирован. Отправляем запрос на загрузку заказов.'
-    );
     dispatch(loadOrders());
   }, [dispatch]);
 
@@ -44,27 +36,26 @@ export const Feed: FC = () => {
     error
   };
 
-  console.log('Ready Orders:', readyOrders);
-  console.log('Pending Orders:', pendingOrders);
-
   if (isLoading) {
-    console.log('Загрузка заказов...');
     return <Preloader />;
   }
 
   if (error) {
-    console.log('Ошибка при загрузке заказов:', error);
     return <div>Ошибка: {error}</div>;
   }
 
   return (
-    <>
-      <OrdersList orders={orders} />
-      <FeedInfoUI
-        feed={feedData}
-        readyOrders={readyOrders}
-        pendingOrders={pendingOrders}
-      />
-    </>
+    <div className={styles.feedContainer}>
+      <div className={styles.feedContent}>
+        <OrdersList orders={orders} />
+      </div>
+      <div className={styles.sideInfo}>
+        <FeedInfoUI
+          feed={feedData}
+          readyOrders={readyOrders}
+          pendingOrders={pendingOrders}
+        />
+      </div>
+    </div>
   );
 };
