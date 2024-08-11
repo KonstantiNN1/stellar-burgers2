@@ -26,10 +26,12 @@ import styles from './app.module.css';
 const App: FC = () => {
   const dispatch = useDispatch();
   const isLoading = useSelector(selectIsLoading);
-  const isLoggedIn = useSelector((state) => state.user.isLoggedIn); // Проверка авторизации
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const background = location.state && (location.state as any).background;
 
   useEffect(() => {
     dispatch(fetchIngredients()).then((response) => {});
@@ -37,16 +39,16 @@ const App: FC = () => {
 
   const handleCloseModal = () => {
     setModalVisible(false);
-    navigate(-1);
+    navigate(-1); // Возврат на предыдущую страницу
   };
 
   useEffect(() => {
-    if (location.state && (location.state as any).background) {
+    if (background) {
       setModalVisible(true);
     } else {
       setModalVisible(false);
     }
-  }, [location]);
+  }, [background]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -67,7 +69,7 @@ const App: FC = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes location={(location.state as any)?.background || location}>
+      <Routes location={background || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
         <Route path='/login' element={<Login />} />
@@ -82,6 +84,7 @@ const App: FC = () => {
           path='/profile/orders'
           element={<ProtectedRoute element={<ProfileOrders />} />}
         />
+        <Route path='/ingredients/:id' element={<IngredientDetails />} />
         <Route path='*' element={<NotFound404 />} />
       </Routes>
       {modalVisible && (

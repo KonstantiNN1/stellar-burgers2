@@ -1,13 +1,10 @@
 import { FC, memo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
 import { BurgerIngredientUI } from '@ui';
 import { TBurgerIngredientProps } from './type';
-
 import { useDispatch } from '../../services/store';
 import { setCurrentIngredient } from '../../reducers/currentIngredient';
-import { addIngredientWithId } from '../../reducers/constructorItems';
-import { addBun } from '../../reducers/constructorItems';
+import { addIngredientWithId, addBun } from '../../reducers/constructorItems';
 
 export const BurgerIngredient: FC<TBurgerIngredientProps> = memo(
   ({ ingredient, count }) => {
