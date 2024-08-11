@@ -2,6 +2,8 @@ import React, { FC, useEffect } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { fetchUserOrders } from '../../reducers/order';
 import { OrdersList } from '@components';
+import { ProfileMenuUI } from '@ui';
+import styles from '../../components/ui/orders-list/orders-list.module.css';
 
 export const ProfileOrders: FC = () => {
   const dispatch = useDispatch();
@@ -21,5 +23,14 @@ export const ProfileOrders: FC = () => {
     return <div>Ошибка: {error}</div>;
   }
 
-  return <OrdersList orders={orders} />;
+  return (
+    <div className={styles.pageContainer}>
+      <div className={styles.menuContainer}>
+        <ProfileMenuUI pathname='/profile/orders' handleLogout={() => {}} />
+      </div>
+      <div className={styles.ordersContainer}>
+        <OrdersList orders={orders} />
+      </div>
+    </div>
+  );
 };

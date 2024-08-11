@@ -24,7 +24,6 @@ export type TOrder = {
   updatedAt: string;
   number: number;
   ingredients: string[];
-  userId: string; // Добавлен идентификатор пользователя
 };
 
 export type TOrdersData = {
