@@ -1,6 +1,11 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { loginUserApi, registerUserApi, logoutApi } from '../utils/burger-api';
-import { setCookie } from '../utils/cookie';
+import {
+  loginUserApi,
+  registerUserApi,
+  logoutApi,
+  getUserApi
+} from '../utils/burger-api';
+import { setCookie, getCookie } from '../utils/cookie';
 import { fetchOrders } from './order';
 import { CustomError, TUser } from '../utils/types';
 import { AppDispatch, RootState } from '../services/store';
@@ -90,6 +95,25 @@ export const logoutUser = createAsyncThunk<
   }
 });
 
+export const checkAuth = createAsyncThunk<
+  TUser,
+  void,
+  { rejectValue: CustomError }
+>('user/checkAuth', async (_, { rejectWithValue }) => {
+  try {
+    const response = await getUserApi();
+    return response.user;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return rejectWithValue({
+        message: error.message,
+        code: error.name
+      });
+    }
+    return rejectWithValue({ message: 'Unknown error occurred' });
+  }
+});
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -134,6 +158,15 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
+        state.error = action.payload?.message || null;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.name = action.payload.name;
+        state.email = action.payload.email;
+        state.isLoggedIn = true;
+      })
+      .addCase(checkAuth.rejected, (state, action) => {
+        state.isLoggedIn = false;
         state.error = action.payload?.message || null;
       });
   }

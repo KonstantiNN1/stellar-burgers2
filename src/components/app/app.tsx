@@ -1,4 +1,4 @@
-import React, { useEffect, useState, FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import {
   Routes,
   Route,
@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom';
 import { useDispatch, useSelector } from '../../services/store';
 import { fetchIngredients, selectIsLoading } from '../../reducers/ingredients';
+import { checkAuth } from '../../reducers/user';
 import {
   ConstructorPage,
   Feed,
@@ -31,24 +32,25 @@ const App: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const background = location.state && (location.state as any).background;
-
   useEffect(() => {
-    dispatch(fetchIngredients()).then((response) => {});
+    dispatch(fetchIngredients());
+
+    // Проверка аутентификации при загрузке
+    dispatch(checkAuth());
   }, [dispatch]);
 
   const handleCloseModal = () => {
     setModalVisible(false);
-    navigate(-1); // Возврат на предыдущую страницу
+    navigate(-1);
   };
 
   useEffect(() => {
-    if (background) {
+    if (location.state && (location.state as any).background) {
       setModalVisible(true);
     } else {
       setModalVisible(false);
     }
-  }, [background]);
+  }, [location]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -69,7 +71,7 @@ const App: FC = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes location={background || location}>
+      <Routes location={(location.state as any)?.background || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
         <Route path='/login' element={<Login />} />
@@ -84,7 +86,6 @@ const App: FC = () => {
           path='/profile/orders'
           element={<ProtectedRoute element={<ProfileOrders />} />}
         />
-        <Route path='/ingredients/:id' element={<IngredientDetails />} />
         <Route path='*' element={<NotFound404 />} />
       </Routes>
       {modalVisible && (

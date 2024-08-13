@@ -1,4 +1,4 @@
-import { FC, SyntheticEvent, useState, useEffect } from 'react';
+import { FC, SyntheticEvent, useState } from 'react';
 import { useDispatch, useSelector } from '../../services/store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loginUser } from '../../reducers/user';
@@ -14,7 +14,7 @@ export const Login: FC = () => {
   const isLoggedIn = useSelector((state: RootState) => state.user.isLoggedIn);
   const error = useSelector((state: RootState) => state.user.error);
 
-  const from = (location.state as any)?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || '/profile';
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
@@ -28,11 +28,10 @@ export const Login: FC = () => {
       });
   };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      navigate(from, { replace: true });
-    }
-  }, [isLoggedIn, navigate, from]);
+  if (isLoggedIn) {
+    navigate(from);
+    return null;
+  }
 
   return (
     <LoginUI
