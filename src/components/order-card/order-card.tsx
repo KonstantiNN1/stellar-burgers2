@@ -14,16 +14,12 @@ export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
     (state) => state.ingredients.data
   );
 
-  console.log('Order received in OrderCard:', order);
-  console.log('Ingredients from store:', ingredients);
-
   const orderInfo = useMemo(() => {
     if (
       !ingredients.length ||
       !order.ingredients ||
       !Array.isArray(order.ingredients)
     ) {
-      console.log('No ingredients found or order.ingredients is not an array');
       return null;
     }
 
@@ -46,14 +42,6 @@ export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
         : 0;
 
     const date = new Date(order.createdAt);
-    console.log('Order Info generated:', {
-      ...order,
-      ingredientsInfo,
-      ingredientsToShow,
-      remains,
-      total,
-      date
-    });
 
     return {
       ...order,
@@ -66,7 +54,6 @@ export const OrderCard: FC<OrderCardProps> = memo(({ order }) => {
   }, [order, ingredients]);
 
   if (!orderInfo) {
-    console.log('Order Info is null, returning null for rendering');
     return null;
   }
 

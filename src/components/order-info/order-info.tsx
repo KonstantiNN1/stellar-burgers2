@@ -6,9 +6,9 @@ import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
 
 export const OrderInfo: FC = () => {
-  const { orderId } = useParams<{ orderId: string }>();
+  const { number } = useParams<{ number: string }>();
   const orderData = useSelector((state) =>
-    state.order.ordersData.find((order) => order.number === Number(orderId))
+    state.order.ordersData.find((order) => order.number === Number(number))
   );
   const ingredients: TIngredient[] = useSelector(
     (state) => state.ingredients.data

@@ -50,9 +50,12 @@ export const fetchUserOrders = createAsyncThunk<
   { rejectValue: CustomError }
 >('user/fetchUserOrders', async (_, { rejectWithValue }) => {
   try {
+    console.log('Fetching user orders...');
     const orders = await getOrdersApi();
+    console.log('Fetched orders:', orders);
     return orders;
   } catch (error) {
+    console.error('Error fetching orders:', error);
     if (error instanceof Error) {
       const customError: CustomError = {
         message: 'Ошибка при загрузке заказов',
