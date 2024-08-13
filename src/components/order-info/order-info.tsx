@@ -1,20 +1,34 @@
-import { FC, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { useSelector } from '../../services/store';
+import { FC, useMemo, useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from '../../services/store';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
-import { TIngredient } from '@utils-types';
+import { TIngredient, TOrderInfo } from '@utils-types';
+import { fetchUserOrders } from '../../reducers/order';
 
 export const OrderInfo: FC = () => {
   const { number } = useParams<{ number: string }>();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [isModalClosed, setIsModalClosed] = useState(false);
+
   const orderData = useSelector((state) =>
     state.order.ordersData.find((order) => order.number === Number(number))
   );
+
   const ingredients: TIngredient[] = useSelector(
     (state) => state.ingredients.data
   );
 
-  const orderInfo = useMemo(() => {
+  const isOrdersLoading = useSelector((state) => state.order.isRequesting);
+
+  useEffect(() => {
+    if (!orderData && !isOrdersLoading) {
+      dispatch(fetchUserOrders());
+    }
+  }, [orderData, isOrdersLoading, dispatch]);
+
+  const orderInfo: TOrderInfo | null = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
     const date = new Date(orderData.createdAt);
@@ -47,7 +61,17 @@ export const OrderInfo: FC = () => {
     };
   }, [orderData, ingredients]);
 
-  if (!orderInfo) {
+  const handleCloseModal = () => {
+    setIsModalClosed(true);
+  };
+
+  useEffect(() => {
+    if (isModalClosed) {
+      navigate(-1);
+    }
+  }, [isModalClosed, navigate]);
+
+  if (isOrdersLoading || !orderInfo) {
     return <Preloader />;
   }
 

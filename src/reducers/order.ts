@@ -50,12 +50,9 @@ export const fetchUserOrders = createAsyncThunk<
   { rejectValue: CustomError }
 >('user/fetchUserOrders', async (_, { rejectWithValue }) => {
   try {
-    console.log('Fetching user orders...');
     const orders = await getOrdersApi();
-    console.log('Fetched orders:', orders);
     return orders;
   } catch (error) {
-    console.error('Error fetching orders:', error);
     if (error instanceof Error) {
       const customError: CustomError = {
         message: 'Ошибка при загрузке заказов',
@@ -70,6 +67,7 @@ export const fetchUserOrders = createAsyncThunk<
 interface OrderState {
   isRequesting: boolean;
   ordersData: TOrder[];
+  userOrdersData: TOrder[];
   orderData: TOrder | null;
   total: number;
   totalToday: number;
@@ -79,6 +77,7 @@ interface OrderState {
 const initialState: OrderState = {
   isRequesting: false,
   ordersData: [],
+  userOrdersData: [],
   orderData: null,
   total: 0,
   totalToday: 0,
@@ -103,19 +102,36 @@ const orderSlice = createSlice({
       state.total = action.payload.total;
       state.totalToday = action.payload.totalToday;
     },
+    setUserOrdersData(state, action: PayloadAction<TOrder[]>) {
+      state.userOrdersData = action.payload;
+    },
     setError(state, action: PayloadAction<string | null>) {
       state.error = action.payload;
     }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUserOrders.fulfilled, (state, action) => {
+        state.userOrdersData = action.payload;
+      })
+      .addCase(fetchUserOrders.rejected, (state, action) => {
+        state.error = action.payload ? action.payload.message : 'Ошибка';
+      });
   }
 });
 
-export const {
-  clearOrder,
-  setRequesting,
-  setOrderData,
-  setOrdersData,
-  setError
-} = orderSlice.actions;
+const loadOrders = () => async (dispatch: AppDispatch) => {
+  try {
+    dispatch(setRequesting(true));
+    const ordersData = await getFeedsApi();
+    dispatch(setOrdersData(ordersData));
+    dispatch(setRequesting(false));
+  } catch (error) {
+    dispatch(setError('Failed to fetch orders'));
+    dispatch(setRequesting(false));
+    console.error('Ошибка при загрузке ленты заказов:', error);
+  }
+};
 
 export const createOrder =
   (ingredients: string[]) =>
@@ -143,17 +159,15 @@ export const createOrder =
     }
   };
 
-export const loadOrders = () => async (dispatch: AppDispatch) => {
-  try {
-    dispatch(setRequesting(true));
-    const ordersData = await getFeedsApi();
-    dispatch(setOrdersData(ordersData));
-    dispatch(setRequesting(false));
-  } catch (error) {
-    dispatch(setError('Failed to fetch orders'));
-    dispatch(setRequesting(false));
-    console.error('Ошибка при загрузке ленты заказов:', error);
-  }
-};
+export { loadOrders };
+
+export const {
+  clearOrder,
+  setRequesting,
+  setOrderData,
+  setOrdersData,
+  setUserOrdersData,
+  setError
+} = orderSlice.actions;
 
 export default orderSlice.reducer;
