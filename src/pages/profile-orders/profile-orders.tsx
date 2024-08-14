@@ -16,7 +16,7 @@ export const ProfileOrders: FC = () => {
     dispatch(fetchUserOrders());
   }, [dispatch]);
 
-  if (isLoading) {
+  if (!orders.length || isLoading) {
     return <Preloader />;
   }
 
@@ -24,16 +24,16 @@ export const ProfileOrders: FC = () => {
     return <div>Ошибка: {error}</div>;
   }
 
-  if (!orders.length) {
-    return (
-      <div className={styles.pageContainer}>
-        <div className={styles.menuContainer}>
-          <ProfileMenuUI pathname='/profile/orders' handleLogout={() => {}} />
-        </div>
-        <div>У вас нет заказов</div>
-      </div>
-    );
-  }
+  // if () {
+  //   return (
+  //     <div className={styles.pageContainer}>
+  //       <div className={styles.menuContainer}>
+  //         <ProfileMenuUI pathname='/profile/orders' handleLogout={() => {}} />
+  //       </div>
+  //       <div>У вас нет заказов</div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className={styles.pageContainer}>

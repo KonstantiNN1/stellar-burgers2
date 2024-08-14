@@ -1,8 +1,30 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { TOrder, TOrdersData } from '../utils/types';
-import { orderBurgerApi, getFeedsApi, getOrdersApi } from '../utils/burger-api';
+import {
+  orderBurgerApi,
+  getFeedsApi,
+  getOrdersApi,
+  getOrderByNumberApi
+} from '../utils/burger-api';
 import { AppDispatch, RootState } from '../services/store';
 import { CustomError } from '../utils/types';
+
+export const fetchOrderByNumber = createAsyncThunk<
+  TOrder,
+  number,
+  { rejectValue: string }
+>('order/fetchOrderByNumber', async (orderNumber, { rejectWithValue }) => {
+  try {
+    const response = await getOrderByNumberApi(orderNumber);
+    if (response.success && response.orders.length > 0) {
+      return response.orders[0];
+    } else {
+      return rejectWithValue('Order not found');
+    }
+  } catch (error) {
+    return rejectWithValue('Failed to fetch order');
+  }
+});
 
 export const placeOrder = createAsyncThunk<
   TOrder,
@@ -116,6 +138,23 @@ const orderSlice = createSlice({
       })
       .addCase(fetchUserOrders.rejected, (state, action) => {
         state.error = action.payload ? action.payload.message : 'Ошибка';
+      })
+      .addCase(fetchOrderByNumber.pending, (state) => {
+        state.isRequesting = true;
+        state.error = null;
+      })
+      .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
+        state.isRequesting = false;
+        const existingOrder = state.ordersData.find(
+          (order) => order.number === action.payload.number
+        );
+        if (!existingOrder) {
+          state.ordersData.push(action.payload);
+        }
+      })
+      .addCase(fetchOrderByNumber.rejected, (state, action) => {
+        state.isRequesting = false;
+        state.error = action.payload || 'Failed to fetch order';
       });
   }
 });

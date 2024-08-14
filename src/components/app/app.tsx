@@ -28,40 +28,28 @@ const App: FC = () => {
   const dispatch = useDispatch();
   const isLoading = useSelector(selectIsLoading);
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
-  const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
+  const background = location.state && (location.state as any).background;
+
   useEffect(() => {
     dispatch(fetchIngredients());
-
-    // Проверка аутентификации при загрузке
     dispatch(checkAuth());
   }, [dispatch]);
 
   const handleCloseModal = () => {
-    setModalVisible(false);
     navigate(-1);
   };
-
-  useEffect(() => {
-    if (location.state && (location.state as any).background) {
-      setModalVisible(true);
-    } else {
-      setModalVisible(false);
-    }
-  }, [location]);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  // ProtectedRoute как часть App компонента
   const ProtectedRoute = ({ element, ...rest }: any) => {
     const location = useLocation();
 
     if (!isLoggedIn) {
-      // Сохранение текущего местоположения
       return <Navigate to='/login' state={{ from: location }} replace />;
     }
 
@@ -71,7 +59,8 @@ const App: FC = () => {
   return (
     <div className={styles.app}>
       <AppHeader />
-      <Routes location={(location.state as any)?.background || location}>
+      {/* Главные маршруты */}
+      <Routes location={background || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
         <Route path='/login' element={<Login />} />
@@ -86,9 +75,14 @@ const App: FC = () => {
           path='/profile/orders'
           element={<ProtectedRoute element={<ProfileOrders />} />}
         />
+        <Route path='/feed/:number' element={<OrderInfo />} />
+        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route path='/profile/orders/:number' element={<OrderInfo />} />
         <Route path='*' element={<NotFound404 />} />
       </Routes>
-      {modalVisible && (
+
+      {/* Маршруты для модальных окон */}
+      {background && (
         <Routes>
           <Route
             path='/feed/:number'

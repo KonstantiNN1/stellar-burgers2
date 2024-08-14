@@ -1,15 +1,15 @@
 import { FC, useMemo, useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from '../../services/store';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient, TOrderInfo } from '@utils-types';
-import { fetchUserOrders } from '../../reducers/order';
-
+import { fetchOrderByNumber } from '../../reducers/order';
 export const OrderInfo: FC = () => {
   const { number } = useParams<{ number: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const [isModalClosed, setIsModalClosed] = useState(false);
 
   const orderData = useSelector((state) =>
@@ -24,9 +24,10 @@ export const OrderInfo: FC = () => {
 
   useEffect(() => {
     if (!orderData && !isOrdersLoading) {
-      dispatch(fetchUserOrders());
+      // Если заказа нет в ленте, пробуем загрузить его отдельно
+      dispatch(fetchOrderByNumber(Number(number)));
     }
-  }, [orderData, isOrdersLoading, dispatch]);
+  }, [orderData, isOrdersLoading, dispatch, number]);
 
   const orderInfo: TOrderInfo | null = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
@@ -63,6 +64,11 @@ export const OrderInfo: FC = () => {
 
   const handleCloseModal = () => {
     setIsModalClosed(true);
+    if (location.state && (location.state as any).background) {
+      navigate(-1);
+    } else {
+      navigate('/profile/orders');
+    }
   };
 
   useEffect(() => {
