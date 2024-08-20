@@ -2,6 +2,7 @@
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/configuration
  */
+// import '@testing-library/jest-dom/extend-expect';
 
 /** @type {import('jest').Config} */
 const config = {
@@ -89,8 +90,13 @@ const config = {
   // ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
-
+  moduleNameMapper: {
+    '\\.(css|scss)$': 'identity-obj-proxy',  
+    '^@components/(.*)$': '<rootDir>/src/components/$1',
+    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
+  
+  },
+  
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
 
@@ -145,8 +151,7 @@ const config = {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  // testEnvironment: "jest-environment-node",
-
+  testEnvironment: 'jsdom',
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
 

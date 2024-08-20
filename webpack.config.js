@@ -89,7 +89,7 @@ module.exports = {
     static: path.join(__dirname, './dist'),
     compress: true,
     historyApiFallback: true,
-    port: 3000,
+    port: 5173,
     open: true // Эта опция автоматически откроет браузер
   }
 };
