@@ -1,28 +1,46 @@
-import { FC } from 'react';
-
-import { TOrder } from '@utils-types';
-import { FeedInfoUI } from '../ui/feed-info';
-
-const getOrders = (orders: TOrder[], status: string): number[] =>
-  orders
-    .filter((item) => item.status === status)
-    .map((item) => item.number)
-    .slice(0, 20);
+import React, { FC } from 'react';
+import { useSelector } from '../../services/store';
+import { Preloader } from '@ui';
+import { FeedInfoUI } from '@ui';
+import { RootState } from '../../services/store';
 
 export const FeedInfo: FC = () => {
-  /** TODO: взять переменные из стора */
-  const orders: TOrder[] = [];
-  const feed = {};
+  const orders = useSelector((state: RootState) => state.order.ordersData);
+  const isLoading = useSelector((state: RootState) => state.order.isRequesting);
+  const error = useSelector((state: RootState) => state.order.error);
+  const total = useSelector((state: RootState) => state.order.total);
+  const totalToday = useSelector((state: RootState) => state.order.totalToday);
 
-  const readyOrders = getOrders(orders, 'done');
+  if (isLoading) {
+    return <Preloader />;
+  }
 
-  const pendingOrders = getOrders(orders, 'pending');
+  if (error) {
+    return <div>Ошибка: {error}</div>;
+  }
+
+  if (!orders || orders.length === 0) {
+    return <div>Заказы отсутствуют или еще не загружены.</div>;
+  }
+
+  const readyOrders = orders
+    .filter((order) => order.status === 'done')
+    .map((order) => order.number);
+  const pendingOrders = orders
+    .filter((order) => order.status === 'pending')
+    .map((order) => order.number);
 
   return (
     <FeedInfoUI
+      feed={{
+        orders,
+        total,
+        totalToday,
+        isLoading: false,
+        error: null
+      }}
       readyOrders={readyOrders}
       pendingOrders={pendingOrders}
-      feed={feed}
     />
   );
 };

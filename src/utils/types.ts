@@ -26,6 +26,14 @@ export type TOrder = {
   ingredients: string[];
 };
 
+export type TOrderInfo = TOrder & {
+  ingredientsInfo: {
+    [key: string]: TIngredient & { count: number };
+  };
+  date: Date;
+  total: number;
+};
+
 export type TOrdersData = {
   orders: TOrder[];
   total: number;
@@ -38,3 +46,8 @@ export type TUser = {
 };
 
 export type TTabMode = 'bun' | 'sauce' | 'main';
+
+export interface CustomError {
+  message: string;
+  code?: string;
+}
