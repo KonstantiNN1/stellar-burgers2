@@ -1,5 +1,19 @@
 const API_URL = 'https://norma.nomoreparties.space/api' 
-  
+const testUrl = 'http://localhost:5173'
+
+const selectors = {
+  bunMockName: 'Краторная булка N-200i',
+  mainMockName: 'Филе Люминесцентного тетраодонтимформа',
+  sauceMockName: 'Соус Spicy-X',
+  orderMockNumber: '12345',
+  modal: '[data-testid="modal"]',
+  modalTitle: '[data-testid="modal-title"]',
+  modalCloseButton: '[data-testid="modal-close-button"]',
+  addButton: '.common_button',
+  button: 'button', 
+  OrderButtonName: 'Оформить заказ'
+};
+
 beforeEach(() => {
     cy.fixture('ingredients.json').then((ingredients) => {
         cy.intercept('GET', `${API_URL}/ingredients`, {
@@ -39,51 +53,52 @@ beforeEach(() => {
         ).as('getUser');
     });
 
-    cy.visit('http://localhost:5173');
+    cy.visit(testUrl);
     cy.wait('@getIngredients');
     cy.wait('@getUser');
   });
-
-  it('Список ингредиентов доступен для выбора', () => {
-    cy.contains('Краторная булка N-200i').should('be.visible');
-    cy.contains('Филе Люминесцентного тетраодонтимформа').scrollIntoView().should('be.visible');
-    cy.contains('Соус Spicy-X').scrollIntoView().should('be.visible');
-  });
-
-  it('Булку можно добавить в конструктор через кнопку «Добавить»', () => {
-    cy.contains('Краторная булка N-200i').should('be.visible');
-    cy.contains('Краторная булка N-200i').parent().find('.common_button').click({ force: true })
   
-    cy.contains('Краторная булка N-200i (верх)').should('exist');
-    cy.contains('Краторная булка N-200i (низ)').should('exist');
+  it('Список ингредиентов доступен для выбора', () => {
+    cy.contains(selectors.bunMockName).should('be.visible');
+    cy.contains(selectors.mainMockName).scrollIntoView().should('be.visible');
+    cy.contains(selectors.sauceMockName).scrollIntoView().should('be.visible');
+  });
+  
+  it('Булку можно добавить в конструктор через кнопку «Добавить»', () => {
+    cy.contains(selectors.bunMockName).should('be.visible');
+    cy.contains(selectors.bunMockName).parent().find(selectors.addButton).click({ force: true });
+  
+    cy.contains(`${selectors.bunMockName} (верх)`).should('exist');
+    cy.contains(`${selectors.bunMockName} (низ)`).should('exist');
   });
   
   it('Открытие модального окна ингредиента', () => {
-    cy.contains('Краторная булка N-200i').click({ force: true });
-    cy.get('[data-testid="modal"]').should('be.visible');
-    cy.get('[data-testid="modal-title"]').should('contain.text', 'Ingredient Details');
+    cy.contains(selectors.bunMockName).click({ force: true });
+    cy.get(selectors.modal).should('be.visible');
+    cy.get(selectors.modalTitle).should('contain.text', 'Ingredient Details');
   });
-
+  
   it('Закрытие модального окна по клику на крестик', () => {
-    cy.contains('Краторная булка N-200i').click({ force: true });
-    cy.get('[data-testid="modal"]').should('be.visible');
-    cy.get('[data-testid="modal-close-button"]').click();
-    cy.get('[data-testid="modal"]').should('not.exist');
+    cy.contains(selectors.bunMockName).click({ force: true });
+    cy.get(selectors.modal).should('be.visible');
+    cy.get(selectors.modalCloseButton).click();
+    cy.get(selectors.modal).should('not.exist');
   });
-
+  
   it('Собирается бургер и вызывается клик по кнопке «Оформить заказ»', () => {
-    cy.contains('Краторная булка N-200i').parent().find('.common_button').click({ force: true })
-    cy.contains('Краторная булка N-200i (верх)').should('exist');
-    cy.contains('Краторная булка N-200i (низ)').should('exist');
-
-    cy.contains('Филе Люминесцентного тетраодонтимформа').parent().find('.common_button').click({ force: true });
-    cy.contains('Филе Люминесцентного тетраодонтимформа').should('exist');
-
-    cy.contains('button', 'Оформить заказ').click({ force: true });
-    cy.contains('button', 'Оформить заказ').should('exist');
-    cy.contains('12345').should('exist');
-
-    cy.get('[data-testid="modal-close-button"]').click();
+    cy.contains(selectors.bunMockName).parent().find(selectors.addButton).click({ force: true });
+    cy.contains(`${selectors.bunMockName} (верх)`).should('exist');
+    cy.contains(`${selectors.bunMockName} (низ)`).should('exist');
+  
+    cy.contains(selectors.mainMockName).parent().find(selectors.addButton).click({ force: true });
+    cy.contains(selectors.mainMockName).should('exist');
+  
+    cy.contains(selectors.button, selectors.OrderButtonName).click({ force: true });
+    cy.contains(selectors.button, selectors.OrderButtonName).should('exist');
+    cy.contains(selectors.orderMockNumber).should('exist');
+  
+    cy.get(selectors.modalCloseButton).click();
     cy.contains('Выберите булки').should('be.visible');
     cy.contains('Выберите начинку').should('be.visible');
   });
+  
